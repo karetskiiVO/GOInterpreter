@@ -17,16 +17,14 @@ variableDefinition: 'var' NAME typename ('=' expression)?;
 expression: expressionAdd;
 expressionAdd: expressionSub ('+' expressionSub)*;
 expressionSub: expressionMul ('-' expressionMul)*;
-expressionMul: expressionDiv ('*' expressionDiv);
+expressionMul: expressionDiv ('*' expressionDiv)*;
 expressionDiv: expressionLogic ('/' expressionLogic)*;
 expressionLogic: ('!' expressionLogic) | expressionLogicOr;
 expressionLogicOr: expressionLogicAnd ('||' expressionLogicAnd)*;
 expressionLogicAnd: compareExpression ('&&' compareExpression)*;
-compareExpression: simpleExpresion COMPARETOKEN simpleExpresion;
+compareExpression: simpleExpresion (COMPARETOKEN simpleExpresion)?;
 simpleExpresion: ('(' expression ')') | callExpression | NAME | NUMBER | STRING;
 callExpression: NAME '(' (expression (',' expression)*)? ')';
-// typeDeclaration: 'type' NAME typeDefinition;
-// typeDefinition: 'struct' '{' '}'; 
 
 STRING: '"' .*? '"';
 COMPARETOKEN: ('==' | '<=' | '>=' | '<' | '>' | '!=');

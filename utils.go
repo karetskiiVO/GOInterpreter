@@ -31,3 +31,16 @@ func ReflectType(typename string) (reflect.Type, error) {
 		return nil, fmt.Errorf("unknown type %v", typename)
 	}
 }
+
+func NewVariable(Type reflect.Type) any {
+	switch Type {
+	case reflect.TypeOf(0):
+		return 0;
+	case reflect.TypeOf(false):
+		return false;
+	case reflect.TypeOf(""):
+		return ""
+	}
+
+	return nil
+}

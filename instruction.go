@@ -19,8 +19,10 @@ func (instr *DefineVariableInstruction) Execute(variables map[string]any, contex
 		return fmt.Errorf("varible %v has already defined", instr.Name)
 	} 
 
-	variables[instr.Name] = reflect.New(instr.Type)
+	variables[instr.Name] = NewVariable(instr.Type)
 
+
+	println(reflect.TypeOf(variables[instr.Name]).String())
 	return nil
 }
 
