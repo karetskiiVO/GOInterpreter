@@ -1,10 +1,8 @@
 package main
 
 func main() {
-	var aboba0 string = "aboba";
-	var aboba1 int;
-	var aboba2 bool;
+	print("hello ");
+	println("world");
+	panic("done");
+	print("wrong");
 }
-func foo(arg1 int) {}
-
-func bar(arg1 int, arg2 int) string {}

@@ -1,6 +1,11 @@
 package main
 
-import "github.com/karetskiiVO/GOInterpreter/parser"
+import (
+	"fmt"
+
+	"github.com/karetskiiVO/GOInterpreter/parser"
+	"golang.org/x/exp/slices"
+)
 
 type GoCompilerListener struct {
 	*parser.BaseGoListener
@@ -29,7 +34,7 @@ func (l *GoCompilerListener) ExitFunctionDefinition(ctx *parser.FunctionDefiniti
 
 func (l *GoCompilerListener) ExitVariableDefinition(ctx *parser.VariableDefinitionContext) {
 	Type, err := ReflectType(ctx.Typename().GetText())
-	
+
 	if err != nil {
 		l.Errors = append(l.Errors, err)
 		return
@@ -41,4 +46,28 @@ func (l *GoCompilerListener) ExitVariableDefinition(ctx *parser.VariableDefiniti
 	})
 }
 
-// func (l *GoCompilerListener) Exo
+func (l *GoCompilerListener) ExitCallExpression(ctx *parser.CallExpressionContext) {
+	functionID, ok := l.program.functionID[ctx.NAME().GetText()]
+	if !ok {
+		l.Errors = append(l.Errors, fmt.Errorf("function '%v' undefined", ctx.NAME().GetText()))
+		return
+	}
+
+	argumentsCnt := len(ctx.AllExpression())
+
+	callInstr := &FunctionCallInstruction{
+		program:    l.program,
+		functionID: functionID,
+		arguments:  slices.Clone(l.instructionStack[len(l.instructionStack)-argumentsCnt : len(l.instructionStack)]),
+	}
+
+	l.instructionStack = append(l.instructionStack[:len(l.instructionStack)-argumentsCnt], callInstr)
+}
+
+func (l *GoCompilerListener) ExitStringUsing(ctx *parser.StringUsingContext) {
+	str := ctx.GetText()
+	l.instructionStack = append(l.instructionStack, &StringUsingInstruction{
+		program: l.program,
+		str:     str[1 : len(str)-1],
+	})
+}

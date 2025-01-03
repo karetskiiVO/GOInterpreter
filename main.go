@@ -59,7 +59,7 @@ func main() {
 
 	err = program.Execute()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("panic:", err)
 		os.Exit(1)
 	}
 }

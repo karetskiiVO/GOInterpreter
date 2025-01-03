@@ -10,9 +10,13 @@ block: '{' line*'}';
 
 arguments: NAME typename (',' NAME typename)*;
 
-line: (variableDefinition) ';';
+line: (variableDefinition | expression | assigment) ';';
 
-variableDefinition: 'var' NAME typename ('=' expression)?;
+variableDefinition: 'var' NAME typename;
+// variableDefinitionWithValue: 'var' NAME typename '=' expression;
+// variableDefinitionWithValueShort: NAME ':=' expression;
+
+assigment: NAME '=' expression;
 
 expression: expressionAdd;
 expressionAdd: expressionSub ('+' expressionSub)*;
@@ -23,8 +27,12 @@ expressionLogic: ('!' expressionLogic) | expressionLogicOr;
 expressionLogicOr: expressionLogicAnd ('||' expressionLogicAnd)*;
 expressionLogicAnd: compareExpression ('&&' compareExpression)*;
 compareExpression: simpleExpresion (COMPARETOKEN simpleExpresion)?;
-simpleExpresion: ('(' expression ')') | callExpression | NAME | NUMBER | STRING;
+simpleExpresion: ('(' expression ')') | callExpression | variableUsing | numberUsing | stringUsing;
 callExpression: NAME '(' (expression (',' expression)*)? ')';
+
+variableUsing: NAME;
+numberUsing: NUMBER;
+stringUsing: STRING;
 
 STRING: '"' .*? '"';
 COMPARETOKEN: ('==' | '<=' | '>=' | '<' | '>' | '!=');

@@ -65,7 +65,6 @@ func (f *IntrpretatedFunction) Call(args ...any) ([]any, error) {
 	}
 
 	variables := make(map[string]any)
-	ctx := make([]any, 0)
 
 	if f.returnType != nil {
 		variables["@result"] = nil
@@ -85,7 +84,7 @@ func (f *IntrpretatedFunction) Call(args ...any) ([]any, error) {
 	}
 
 	for _, instruction := range f.instructions {
-		err := instruction.Execute(variables, ctx)
+		err := instruction.Execute(variables)
 
 		if err == nil {
 			continue

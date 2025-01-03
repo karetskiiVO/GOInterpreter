@@ -5,25 +5,28 @@ import "fmt"
 type Program struct {
 	functions  []Function
 	functionID map[string]int
+
+	stack []any
 }
 
 func NewProgram() *Program {
 	res := &Program{
 		functions:  make([]Function, 0),
 		functionID: map[string]int{},
+		stack: make([]any, 0),
 	}
 
 	res.RegisterFunction(GenericFunction{
 		name: "print",
 		handler: func(args ...any) error {
-			print(args)
+			fmt.Print(args...)
 			return nil
 		},
 	})
 	res.RegisterFunction(GenericFunction{
 		name: "println",
 		handler: func(args ...any) error {
-			print(args)
+			fmt.Println(args...)
 			return nil
 		},
 	})
@@ -61,6 +64,6 @@ func (prog *Program) Execute() error {
 	if len(res) != 0 {
 		return fmt.Errorf("'main' can't have return value")
 	}
-	
+
 	return err
 }
