@@ -1,8 +1,8 @@
 package main
 
 func main() {
-	print("hello ");
-	println("world");
+	print("hello", " ", "world")
+	println("!");
 	panic("done");
 	print("wrong");
 }

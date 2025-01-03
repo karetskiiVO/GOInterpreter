@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/karetskiiVO/GOInterpreter/parser"
 	"golang.org/x/exp/slices"
@@ -55,13 +56,13 @@ func (l *GoCompilerListener) ExitCallExpression(ctx *parser.CallExpressionContex
 
 	argumentsCnt := len(ctx.AllExpression())
 
-	callInstr := &FunctionCallInstruction{
+	instruction := &FunctionCallInstruction{
 		program:    l.program,
 		functionID: functionID,
 		arguments:  slices.Clone(l.instructionStack[len(l.instructionStack)-argumentsCnt : len(l.instructionStack)]),
 	}
 
-	l.instructionStack = append(l.instructionStack[:len(l.instructionStack)-argumentsCnt], callInstr)
+	l.instructionStack = append(l.instructionStack[:len(l.instructionStack)-argumentsCnt], instruction)
 }
 
 func (l *GoCompilerListener) ExitStringUsing(ctx *parser.StringUsingContext) {
@@ -70,4 +71,55 @@ func (l *GoCompilerListener) ExitStringUsing(ctx *parser.StringUsingContext) {
 		program: l.program,
 		str:     str[1 : len(str)-1],
 	})
+}
+
+func (l *GoCompilerListener) ExitNumberUsing(ctx *parser.NumberUsingContext) {
+	integer, err := strconv.Atoi(ctx.GetText())
+	if err != nil {
+		l.Errors = append(l.Errors, err)
+		return
+	}
+
+	l.instructionStack = append(l.instructionStack, &IntUsingInstruction{
+		program: l.program,
+		integer: integer,
+	})
+}
+
+func (l *GoCompilerListener) ExitVariableUsing(ctx *parser.VariableUsingContext) {
+	l.instructionStack = append(l.instructionStack, &VariableUsingInstruction{
+		program:      l.program,
+		variableName: ctx.GetText(),
+	})
+}
+
+func (l *GoCompilerListener) ExitBoolUsing(ctx *parser.BoolUsingContext) {
+	l.instructionStack = append(l.instructionStack, &BoolUsingInstruction{
+		program: l.program,
+		boolVal: ctx.GetText() == "true",
+	})
+}
+
+func (l *GoCompilerListener) ExitAssigment(ctx *parser.AssigmentContext) {
+	instruction := l.instructionStack[len(l.instructionStack)-1]
+	l.instructionStack[len(l.instructionStack)-1] = &AssigmentInstruction{
+		program:     l.program,
+		varName:     ctx.NAME().GetText(),
+		instruction: instruction,
+	}
+}
+
+func (l *GoCompilerListener) ExitExpressionAdd(ctx *parser.ExpressionAddContext) {
+	argumentsCnt := len(ctx.AllExpressionSub())
+
+	if argumentsCnt == 1 {
+		return
+	}
+
+	instruction := &AddInstruction{
+		program:      l.program,
+		instructions: slices.Clone(l.instructionStack[len(l.instructionStack)-argumentsCnt : len(l.instructionStack)]),
+	}
+
+	l.instructionStack = append(l.instructionStack[:len(l.instructionStack)-argumentsCnt], instruction)
 }

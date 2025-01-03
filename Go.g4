@@ -27,13 +27,15 @@ expressionLogic: ('!' expressionLogic) | expressionLogicOr;
 expressionLogicOr: expressionLogicAnd ('||' expressionLogicAnd)*;
 expressionLogicAnd: compareExpression ('&&' compareExpression)*;
 compareExpression: simpleExpresion (COMPARETOKEN simpleExpresion)?;
-simpleExpresion: ('(' expression ')') | callExpression | variableUsing | numberUsing | stringUsing;
+simpleExpresion: ('(' expression ')') | callExpression | variableUsing | numberUsing | stringUsing | boolUsing;
 callExpression: NAME '(' (expression (',' expression)*)? ')';
 
-variableUsing: NAME;
-numberUsing: NUMBER;
-stringUsing: STRING;
+boolUsing:      BOOL;
+variableUsing:  NAME;
+numberUsing:    NUMBER;
+stringUsing:    STRING;
 
+BOOL: ('true' | 'false');
 STRING: '"' .*? '"';
 COMPARETOKEN: ('==' | '<=' | '>=' | '<' | '>' | '!=');
 NUMBER: [-+]?[0-9]+;
