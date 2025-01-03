@@ -28,7 +28,17 @@ func (l *GoCompilerListener) ExitFunctionDefinition(ctx *parser.FunctionDefiniti
 }
 
 func (l *GoCompilerListener) ExitVariableDefinition(ctx *parser.VariableDefinitionContext) {
+	Type, err := ReflectType(ctx.Typename().GetText())
+	
+	if err != nil {
+		l.Errors = append(l.Errors, err)
+		return
+	}
 
+	l.instructionStack = append(l.instructionStack, &DefineVariableInstruction{
+		Name: ctx.NAME().GetText(),
+		Type: Type,
+	})
 }
 
 // func (l *GoCompilerListener) Exo

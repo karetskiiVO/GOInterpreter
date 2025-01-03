@@ -1,6 +1,9 @@
 package main
 
-import "reflect"
+import (
+	"fmt"
+	"reflect"
+)
 
 type Instruction interface {
 	Execute(variables map[string]any, context []any) error
@@ -12,7 +15,12 @@ type DefineVariableInstruction struct {
 }
 
 func (instr *DefineVariableInstruction) Execute(variables map[string]any, context []any) error {
-	println(instr.Name, instr.Type.String())
-	println("implement")
+	if _, ok := variables[instr.Name]; ok {
+		return fmt.Errorf("varible %v has already defined", instr.Name)
+	} 
+
+	variables[instr.Name] = reflect.New(instr.Type)
+
 	return nil
 }
+
