@@ -12,7 +12,7 @@ func main() {
 	println(a, b);
 	a = 2;
 	b = 3;
-	println(a, b, a+b);
+	println(a, b, a+b, 2 + 3*2, 5 - 1 - 2);
 	println(str1 + str2, c);
 	c = 1;
 }

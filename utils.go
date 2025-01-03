@@ -67,3 +67,66 @@ func AddAny(val1, val2 any) (any, error) {
 		)
 	}
 }
+
+func MulAny(val1, val2 any) (any, error) {
+	if reflect.TypeOf(val1) != reflect.TypeOf(val2) {
+		return nil, fmt.Errorf(
+			"invalid operation %v(type:%v) * %v(type:%v)",
+			val1, reflect.TypeOf(val1),
+			val2, reflect.TypeOf(val2),
+		)
+	}
+
+	switch val1.(type) {
+	case int:
+		return val1.(int) * val2.(int), nil
+	default:
+		return nil, fmt.Errorf(
+			"invalid operation %v(type:%v) * %v(type:%v)",
+			val1, reflect.TypeOf(val1),
+			val2, reflect.TypeOf(val2),
+		)
+	}
+}
+
+func DivAny(val1, val2 any) (any, error) {
+	if reflect.TypeOf(val1) != reflect.TypeOf(val2) {
+		return nil, fmt.Errorf(
+			"invalid operation %v(type:%v) / %v(type:%v)",
+			val1, reflect.TypeOf(val1),
+			val2, reflect.TypeOf(val2),
+		)
+	}
+
+	switch val1.(type) {
+	case int:
+		return val1.(int) / val2.(int), nil
+	default:
+		return nil, fmt.Errorf(
+			"invalid operation %v(type:%v) / %v(type:%v)",
+			val1, reflect.TypeOf(val1),
+			val2, reflect.TypeOf(val2),
+		)
+	}
+}
+
+func SubAny(val1, val2 any) (any, error) {
+	if reflect.TypeOf(val1) != reflect.TypeOf(val2) {
+		return nil, fmt.Errorf(
+			"invalid operation %v(type:%v) + %v(type:%v)",
+			val1, reflect.TypeOf(val1),
+			val2, reflect.TypeOf(val2),
+		)
+	}
+
+	switch val1.(type) {
+	case int:
+		return val1.(int) - val2.(int), nil
+	default:
+		return nil, fmt.Errorf(
+			"invalid operation %v(type:%v) + %v(type:%v)",
+			val1, reflect.TypeOf(val1),
+			val2, reflect.TypeOf(val2),
+		)
+	}
+}

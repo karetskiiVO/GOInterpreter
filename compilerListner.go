@@ -123,3 +123,48 @@ func (l *GoCompilerListener) ExitExpressionAdd(ctx *parser.ExpressionAddContext)
 
 	l.instructionStack = append(l.instructionStack[:len(l.instructionStack)-argumentsCnt], instruction)
 }
+
+func (l *GoCompilerListener) ExitExpressionSub(ctx *parser.ExpressionSubContext) {
+	argumentsCnt := len(ctx.AllExpressionMul())
+
+	if argumentsCnt == 1 {
+		return
+	}
+
+	instruction := &SubInstruction{
+		program:      l.program,
+		instructions: slices.Clone(l.instructionStack[len(l.instructionStack)-argumentsCnt : len(l.instructionStack)]),
+	}
+
+	l.instructionStack = append(l.instructionStack[:len(l.instructionStack)-argumentsCnt], instruction)
+}
+
+func (l *GoCompilerListener) ExitExpressionMul(ctx *parser.ExpressionMulContext) {
+	argumentsCnt := len(ctx.AllExpressionDiv())
+
+	if argumentsCnt == 1 {
+		return
+	}
+
+	instruction := &MulInstruction{
+		program:      l.program,
+		instructions: slices.Clone(l.instructionStack[len(l.instructionStack)-argumentsCnt : len(l.instructionStack)]),
+	}
+
+	l.instructionStack = append(l.instructionStack[:len(l.instructionStack)-argumentsCnt], instruction)
+}
+
+func (l *GoCompilerListener) ExitExpressionDiv(ctx *parser.ExpressionDivContext) {
+	argumentsCnt := len(ctx.AllExpressionLogic())
+
+	if argumentsCnt == 1 {
+		return
+	}
+
+	instruction := &DivInstruction{
+		program:      l.program,
+		instructions: slices.Clone(l.instructionStack[len(l.instructionStack)-argumentsCnt : len(l.instructionStack)]),
+	}
+
+	l.instructionStack = append(l.instructionStack[:len(l.instructionStack)-argumentsCnt], instruction)
+}

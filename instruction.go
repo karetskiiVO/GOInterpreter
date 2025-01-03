@@ -159,3 +159,126 @@ func (instr *AddInstruction) Execute(variables map[string]any) error {
 
 	return nil
 }
+
+type MulInstruction struct {
+	program      *Program
+	instructions []Instruction
+}
+
+func (instr *MulInstruction) Execute(variables map[string]any) error {
+	stacklen := len(instr.program.stack)
+
+	for idx := range instr.instructions {
+		instruction := instr.instructions[len(instr.instructions)-1-idx]
+
+		err := instruction.Execute(variables)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(instr.program.stack)-stacklen != len(instr.instructions) {
+		return fmt.Errorf(
+			"missmatch between return values expected: %v actual: %v",
+			len(instr.instructions),
+			len(instr.program.stack)-stacklen,
+		)
+	}
+
+	for idx := 0; idx < len(instr.instructions)-1; idx++ {
+		val1 := instr.program.stack[len(instr.program.stack)-1]
+		instr.program.stack = instr.program.stack[:len(instr.program.stack)-1]
+		val2 := instr.program.stack[len(instr.program.stack)-1]
+		instr.program.stack = instr.program.stack[:len(instr.program.stack)-1]
+
+		sum, err := MulAny(val1, val2)
+		if err != nil {
+			return err
+		}
+		instr.program.stack = append(instr.program.stack, sum)
+	}
+
+	return nil
+}
+
+type SubInstruction struct {
+	program      *Program
+	instructions []Instruction
+}
+
+func (instr *SubInstruction) Execute(variables map[string]any) error {
+	stacklen := len(instr.program.stack)
+
+	for idx := range instr.instructions {
+		instruction := instr.instructions[len(instr.instructions)-1-idx]
+
+		err := instruction.Execute(variables)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(instr.program.stack)-stacklen != len(instr.instructions) {
+		return fmt.Errorf(
+			"missmatch between return values expected: %v actual: %v",
+			len(instr.instructions),
+			len(instr.program.stack)-stacklen,
+		)
+	}
+
+	for idx := 0; idx < len(instr.instructions)-1; idx++ {
+		val1 := instr.program.stack[len(instr.program.stack)-1]
+		instr.program.stack = instr.program.stack[:len(instr.program.stack)-1]
+		val2 := instr.program.stack[len(instr.program.stack)-1]
+		instr.program.stack = instr.program.stack[:len(instr.program.stack)-1]
+
+		sum, err := SubAny(val1, val2)
+		if err != nil {
+			return err
+		}
+		instr.program.stack = append(instr.program.stack, sum)
+	}
+
+	return nil
+}
+
+type DivInstruction struct {
+	program      *Program
+	instructions []Instruction
+}
+
+func (instr *DivInstruction) Execute(variables map[string]any) error {
+	stacklen := len(instr.program.stack)
+
+	for idx := range instr.instructions {
+		instruction := instr.instructions[len(instr.instructions)-1-idx]
+
+		err := instruction.Execute(variables)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(instr.program.stack)-stacklen != len(instr.instructions) {
+		return fmt.Errorf(
+			"missmatch between return values expected: %v actual: %v",
+			len(instr.instructions),
+			len(instr.program.stack)-stacklen,
+		)
+	}
+
+	for idx := 0; idx < len(instr.instructions)-1; idx++ {
+		val1 := instr.program.stack[len(instr.program.stack)-1]
+		instr.program.stack = instr.program.stack[:len(instr.program.stack)-1]
+		val2 := instr.program.stack[len(instr.program.stack)-1]
+		instr.program.stack = instr.program.stack[:len(instr.program.stack)-1]
+
+		sum, err := DivAny(val1, val2)
+		if err != nil {
+			return err
+		}
+		instr.program.stack = append(instr.program.stack, sum)
+	}
+
+	return nil
+}
