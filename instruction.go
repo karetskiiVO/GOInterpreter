@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"slices"
 
 	"golang.org/x/exp/maps"
 )
@@ -41,8 +42,10 @@ func (instr *FunctionCallInstruction) Execute(variables map[string]any) error {
 			return err
 		}
 	}
+	args := slices.Clone(instr.program.stack[stacklen:])
+	instr.program.stack = instr.program.stack[:stacklen]
 
-	res, err := instr.program.functions[instr.functionID].Call(instr.program.stack[stacklen:]...)
+	res, err := instr.program.functions[instr.functionID].Call(args...)
 	instr.program.stack = append(instr.program.stack, res...)
 	return err
 }
@@ -297,8 +300,14 @@ func (instr *BlockInstruction) Execute(variables map[string]any) error {
 	stacklen := len(instr.program.stack)
 	blockVariables := maps.Clone(variables)
 
+	var err error = nil
+
 	for _, instruction := range instr.instructions {
-		err := instruction.Execute(blockVariables)
+		err = instruction.Execute(blockVariables)
+		
+		if _, ok := err.(ReturnError); ok {
+			break
+		}
 		if err != nil {
 			return err
 		}
@@ -310,10 +319,9 @@ func (instr *BlockInstruction) Execute(variables map[string]any) error {
 	if stacklen > len(instr.program.stack) {
 		return fmt.Errorf("wrong stack size")
 	}
-
 	instr.program.stack = instr.program.stack[:stacklen]
 
-	return nil
+	return err
 }
 
 type IFInstruction struct {
@@ -420,11 +428,11 @@ func (instr *FORInstruction) Execute(variables map[string]any) error {
 				return fmt.Errorf("statement: %v(type: %v) is not bool", statementValue, reflect.TypeOf(statementValue))
 			}
 		}
-		
+
 		if !statementValue {
 			break
 		}
-		
+
 		err := instr.than.Execute(variables)
 		if err != nil {
 
@@ -444,4 +452,33 @@ type BreakInstruction struct{}
 
 func (instr *BreakInstruction) Execute(variables map[string]any) error {
 	return BreakError{}
+}
+
+type ReturnInstruction struct {
+	program    *Program
+	expression Instruction
+}
+
+func (instr *ReturnInstruction) Execute(variables map[string]any) error {
+	hasExpression := (instr.expression != nil)
+	_, hasReturnValue := variables["@result"]
+	if hasExpression != hasReturnValue {
+		return fmt.Errorf("has return value:%v expected:%v", hasExpression, hasReturnValue)
+	}
+
+	if hasReturnValue {
+		stacklen := len(instr.program.stack)
+		err := instr.expression.Execute(variables)
+		if err != nil {
+			return err
+		}
+
+		if len(instr.program.stack) != stacklen+1 {
+			return fmt.Errorf("wrong count of return values of statement")
+		}
+
+		variables["@result"] = instr.program.stack[len(instr.program.stack)-1]
+	}
+
+	return ReturnError{}
 }

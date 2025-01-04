@@ -69,7 +69,6 @@ func (f *IntrpretatedFunction) Call(args ...any) ([]any, error) {
 			len(f.inputVariables),
 		)
 	}
-
 	variables := make(map[string]any)
 
 	if f.returnType != nil {

@@ -14,4 +14,16 @@ func main() {
 		println(res);
 		break;
 	}
+
+	println(factorial(5));
+
+	return;
+}
+
+func factorial(n int) int {
+	if n <= 1 {
+		return 1;
+	}
+
+	return n * factorial(n - 1);
 }

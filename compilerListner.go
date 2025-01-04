@@ -233,3 +233,16 @@ func (l *GoCompilerListener) ExitExpressionFOR(ctx *parser.ExpressionFORContext)
 func (l *GoCompilerListener) ExitBreak(ctx *parser.BreakContext) {
 	l.instructionStack = append(l.instructionStack, &BreakInstruction{})
 }
+
+func (l *GoCompilerListener) ExitFunctionReturn(ctx *parser.FunctionReturnContext) {
+	res := &ReturnInstruction{
+		program: l.program,
+	}
+
+	if ctx.Expression() != nil {
+		res.expression = l.instructionStack[len(l.instructionStack)-1]
+		l.instructionStack = l.instructionStack[:len(l.instructionStack)-1]
+	}
+	
+	l.instructionStack = append(l.instructionStack, res)
+} 
