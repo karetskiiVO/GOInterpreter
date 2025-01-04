@@ -196,3 +196,40 @@ func (l *GoCompilerListener) ExitExpressionIF(ctx *parser.ExpressionIFContext) {
 
 	l.instructionStack = append(l.instructionStack, res)
 }
+
+func (l *GoCompilerListener) ExitCompareExpression(ctx *parser.CompareExpressionContext) {
+	if len(ctx.AllSimpleExpresion()) == 1 {
+		return
+	}
+
+	res := &CompareInstruction{}
+	res.program = l.program
+	res.compareType = ctx.COMPARETOKEN().GetText()
+
+	res.rhv = l.instructionStack[len(l.instructionStack)-1]
+	l.instructionStack = l.instructionStack[:len(l.instructionStack)-1]
+
+	res.lhv = l.instructionStack[len(l.instructionStack)-1]
+	l.instructionStack = l.instructionStack[:len(l.instructionStack)-1]
+
+	l.instructionStack = append(l.instructionStack, res)
+}
+
+func (l *GoCompilerListener) ExitExpressionFOR(ctx *parser.ExpressionFORContext) {
+	res := &FORInstruction{}
+	res.program = l.program
+
+	res.than = l.instructionStack[len(l.instructionStack)-1]
+	l.instructionStack = l.instructionStack[:len(l.instructionStack)-1]
+
+	if ctx.Expression() != nil {
+		res.statment = l.instructionStack[len(l.instructionStack)-1]
+		l.instructionStack = l.instructionStack[:len(l.instructionStack)-1]
+	}
+
+	l.instructionStack = append(l.instructionStack, res)
+}
+
+func (l *GoCompilerListener) ExitBreak(ctx *parser.BreakContext) {
+	l.instructionStack = append(l.instructionStack, &BreakInstruction{})
+}

@@ -354,3 +354,94 @@ func (instr *IFInstruction) Execute(variables map[string]any) error {
 
 	return nil
 }
+
+type CompareInstruction struct {
+	program     *Program
+	lhv, rhv    Instruction
+	compareType string
+}
+
+func (instr *CompareInstruction) Execute(variables map[string]any) error {
+	stacklen := len(instr.program.stack)
+
+	var err error
+	err = instr.lhv.Execute(variables)
+	if err != nil {
+		return err
+	}
+	err = instr.rhv.Execute(variables)
+	if err != nil {
+		return err
+	}
+
+	if len(instr.program.stack) != stacklen+2 {
+		return fmt.Errorf("wrong count of return values of statement")
+	}
+
+	rhv := instr.program.stack[len(instr.program.stack)-1]
+	instr.program.stack = instr.program.stack[:len(instr.program.stack)-1]
+	lhv := instr.program.stack[len(instr.program.stack)-1]
+	instr.program.stack = instr.program.stack[:len(instr.program.stack)-1]
+
+	res, err := CompareAny(lhv, rhv, instr.compareType)
+	if err != nil {
+		return err
+	}
+
+	instr.program.stack = append(instr.program.stack, res)
+
+	return nil
+}
+
+type FORInstruction struct {
+	program  *Program
+	statment Instruction
+	than     Instruction
+}
+
+func (instr *FORInstruction) Execute(variables map[string]any) error {
+	statementValue := true
+	for {
+		if instr.statment != nil {
+			ok := false
+			stacklen := len(instr.program.stack)
+			err := instr.statment.Execute(variables)
+			if err != nil {
+				return err
+			}
+
+			if len(instr.program.stack) != stacklen+1 {
+				return fmt.Errorf("wrong count of return values of statement")
+			}
+
+			statementValue, ok = instr.program.stack[len(instr.program.stack)-1].(bool)
+			instr.program.stack = instr.program.stack[:len(instr.program.stack)-1]
+			if !ok {
+				return fmt.Errorf("statement: %v(type: %v) is not bool", statementValue, reflect.TypeOf(statementValue))
+			}
+		}
+		
+		if !statementValue {
+			break
+		}
+		
+		err := instr.than.Execute(variables)
+		if err != nil {
+
+			if reflect.TypeOf(err) == reflect.TypeOf(BreakError{}) {
+				break
+			}
+
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+type BreakInstruction struct{}
+
+func (instr *BreakInstruction) Execute(variables map[string]any) error {
+	return BreakError{}
+}

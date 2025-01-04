@@ -11,21 +11,21 @@ func main() {
 		println("false");
 	}
 
-	if false {
+	if 1 > 2 {
 		println("false x2");
 	} else {
 		println("true x2");
 	}
 
-	if false {
+	if "false" == "true" {
 		println("false x3");
-	} else if true {
+	} else if 3 <= 4 {
 		println("true x3");
 	} else {
 		println("false x3");
 	}
 
-	if false {
+	if false == true {
 		println("false x4");
 	} else if false {
 		println("false x4");

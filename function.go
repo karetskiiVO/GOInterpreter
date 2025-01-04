@@ -16,6 +16,12 @@ func (ReturnError) Error() string {
 	panic("ReturnError must be handled it is not error")
 }
 
+type BreakError struct{}
+
+func (BreakError) Error() string {
+	panic("BreakError must be handled it is not error")
+}
+
 type GenericFunction struct {
 	name    string
 	handler func(args ...any) error
