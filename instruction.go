@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"reflect"
+
+	"golang.org/x/exp/maps"
 )
 
 type Instruction interface {
@@ -34,7 +36,10 @@ func (instr *FunctionCallInstruction) Execute(variables map[string]any) error {
 	stacklen := len(instr.program.stack)
 
 	for _, argument := range instr.arguments {
-		argument.Execute(variables)
+		err := argument.Execute(variables)
+		if err != nil {
+			return err
+		}
 	}
 
 	res, err := instr.program.functions[instr.functionID].Call(instr.program.stack[stacklen:]...)
@@ -278,6 +283,73 @@ func (instr *DivInstruction) Execute(variables map[string]any) error {
 			return err
 		}
 		instr.program.stack = append(instr.program.stack, sum)
+	}
+
+	return nil
+}
+
+type BlockInstruction struct {
+	program      *Program
+	instructions []Instruction
+}
+
+func (instr *BlockInstruction) Execute(variables map[string]any) error {
+	stacklen := len(instr.program.stack)
+	blockVariables := maps.Clone(variables)
+
+	for _, instruction := range instr.instructions {
+		err := instruction.Execute(blockVariables)
+		if err != nil {
+			return err
+		}
+	}
+
+	for variable := range variables {
+		variables[variable] = blockVariables[variable]
+	}
+	if stacklen > len(instr.program.stack) {
+		return fmt.Errorf("wrong stack size")
+	}
+
+	instr.program.stack = instr.program.stack[:stacklen]
+
+	return nil
+}
+
+type IFInstruction struct {
+	program   *Program
+	statment  Instruction
+	than      Instruction
+	otherwise Instruction
+}
+
+func (instr *IFInstruction) Execute(variables map[string]any) error {
+	stacklen := len(instr.program.stack)
+	err := instr.statment.Execute(variables)
+	if err != nil {
+		return err
+	}
+
+	if len(instr.program.stack) != stacklen+1 {
+		return fmt.Errorf("wrong count of return values of statement")
+	}
+
+	statementValue, ok := instr.program.stack[len(instr.program.stack)-1].(bool)
+	instr.program.stack = instr.program.stack[:len(instr.program.stack)-1]
+	if !ok {
+		return fmt.Errorf("statement: %v(type: %v) is not bool", statementValue, reflect.TypeOf(statementValue))
+	}
+
+	if statementValue {
+		err := instr.than.Execute(variables)
+		if err != nil {
+			return err
+		}
+	} else if instr.otherwise != nil {
+		err := instr.otherwise.Execute(variables)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

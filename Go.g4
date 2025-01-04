@@ -10,7 +10,10 @@ block: '{' line*'}';
 
 arguments: NAME typename (',' NAME typename)*;
 
-line: (variableDefinition | expression | assigment | functionReturn) ';';
+line: ((variableDefinition | expression | assigment | functionReturn ) ';') | expressionIF;
+
+expressionIF: 'if' expression block expressionELSE?;
+expressionELSE: 'else' (block | expressionIF);
 
 variableDefinition: 'var' NAME typename;
 // variableDefinitionWithValue: 'var' NAME typename '=' expression;

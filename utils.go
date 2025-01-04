@@ -113,7 +113,7 @@ func DivAny(val1, val2 any) (any, error) {
 func SubAny(val1, val2 any) (any, error) {
 	if reflect.TypeOf(val1) != reflect.TypeOf(val2) {
 		return nil, fmt.Errorf(
-			"invalid operation %v(type:%v) + %v(type:%v)",
+			"invalid operation %v(type:%v) - %v(type:%v)",
 			val1, reflect.TypeOf(val1),
 			val2, reflect.TypeOf(val2),
 		)
@@ -124,7 +124,61 @@ func SubAny(val1, val2 any) (any, error) {
 		return val1.(int) - val2.(int), nil
 	default:
 		return nil, fmt.Errorf(
-			"invalid operation %v(type:%v) + %v(type:%v)",
+			"invalid operation !%v(type:%v) - %v(type:%v)",
+			val1, reflect.TypeOf(val1),
+			val2, reflect.TypeOf(val2),
+		)
+	}
+}
+
+func NotAny(val1 any) (any, error) {
+	boolVal, ok := val1.(bool)
+	if ok {
+		return !boolVal, nil
+	} else {
+		return nil, fmt.Errorf(
+			"invalid operation !%v(type:%v)",
+			val1, reflect.TypeOf(val1),
+		)
+	}
+}
+
+func OrAny(val1, val2 any) (any, error) {
+	if reflect.TypeOf(val1) != reflect.TypeOf(val2) {
+		return nil, fmt.Errorf(
+			"invalid operation %v(type:%v) || %v(type:%v)",
+			val1, reflect.TypeOf(val1),
+			val2, reflect.TypeOf(val2),
+		)
+	}
+
+	switch val1.(type) {
+	case bool:
+		return val1.(bool) || val2.(bool), nil
+	default:
+		return nil, fmt.Errorf(
+			"invalid operation !%v(type:%v) || %v(type:%v)",
+			val1, reflect.TypeOf(val1),
+			val2, reflect.TypeOf(val2),
+		)
+	}
+}
+
+func AndAny(val1, val2 any) (any, error) {
+	if reflect.TypeOf(val1) != reflect.TypeOf(val2) {
+		return nil, fmt.Errorf(
+			"invalid operation %v(type:%v) || %v(type:%v)",
+			val1, reflect.TypeOf(val1),
+			val2, reflect.TypeOf(val2),
+		)
+	}
+
+	switch val1.(type) {
+	case bool:
+		return val1.(bool) && val2.(bool), nil
+	default:
+		return nil, fmt.Errorf(
+			"invalid operation !%v(type:%v) && %v(type:%v)",
 			val1, reflect.TypeOf(val1),
 			val2, reflect.TypeOf(val2),
 		)

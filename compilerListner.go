@@ -168,3 +168,31 @@ func (l *GoCompilerListener) ExitExpressionDiv(ctx *parser.ExpressionDivContext)
 
 	l.instructionStack = append(l.instructionStack[:len(l.instructionStack)-argumentsCnt], instruction)
 }
+
+func (l *GoCompilerListener) ExitBlock(ctx *parser.BlockContext) {
+	instructionCnt := len(ctx.AllLine())
+	instructions := slices.Clone(l.instructionStack[len(l.instructionStack)-instructionCnt : len(l.instructionStack)])
+
+	l.instructionStack = append(l.instructionStack[:len(l.instructionStack)-instructionCnt], &BlockInstruction{
+		program:      l.program,
+		instructions: instructions,
+	})
+}
+
+func (l *GoCompilerListener) ExitExpressionIF(ctx *parser.ExpressionIFContext) {
+	res := &IFInstruction{}
+	res.program = l.program
+
+	if ctx.ExpressionELSE() != nil {
+		res.otherwise = l.instructionStack[len(l.instructionStack)-1]
+		l.instructionStack = l.instructionStack[:len(l.instructionStack)-1]
+	}
+
+	res.than = l.instructionStack[len(l.instructionStack)-1]
+	l.instructionStack = l.instructionStack[:len(l.instructionStack)-1]
+
+	res.statment = l.instructionStack[len(l.instructionStack)-1]
+	l.instructionStack = l.instructionStack[:len(l.instructionStack)-1]
+
+	l.instructionStack = append(l.instructionStack, res)
+}
